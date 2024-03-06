@@ -51,6 +51,18 @@ This section focuses on processing PDF files to extract text, generate embedding
 2. **Sentence Extraction and Embedding Generation**: Splits the text content into sentences, generates embeddings for each sentence via a REST API call to the backend server, and then stores these embeddings along with the sentence text in MongoDB.
 3. **Metadata Handling**: Keeps track of the PDF file name and the page number for each sentence to provide context for the chatbot's responses.
 
+#### Usage
+
+To run this process, ensure your MongoDB instance is accessible and that the backend server is running with the `/embedding` endpoint configured to accept text and return embeddings. Execute the script to process all PDF files in the specified directory, extracting text, generating embeddings, and storing the data in MongoDB for use by the chatbot.
+
+```bash
+
+node processPdf.js
+
+```
+
+This additional capability enriches the chatbot's responses with information extracted from a predefined set of documents, making it more useful for answering queries with specific, document-based knowledge.
+
 ## Environment Setup
 
 - **MongoDB**: Ensure your MongoDB instance is accessible and you have access to the connection string.
@@ -64,11 +76,11 @@ This section focuses on processing PDF files to extract text, generate embedding
   Refer to:
   https://www.mongodb.com/docs/atlas/tutorial/deploy-free-tier-cluster/
 
-- Generate the embeddings using the supplied `processPdf.js` script.
+- Generate the embeddings using the supplied `backend/processPdf.js` script.
 
 - Create a Vector Search Index. Refer to: https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/
 
-Vector Search Index
+Vector Search Index definition
 
 ```json
 {
@@ -86,18 +98,6 @@ Vector Search Index
 ### Google Cloud AI Platform
 
 To setup and enable the required API and services refer to: https://cloud.google.com/vertex-ai/docs/start/cloud-environment
-
-#### Usage
-
-To run this process, ensure your MongoDB instance is accessible and that the backend server is running with the `/embedding` endpoint configured to accept text and return embeddings. Execute the script to process all PDF files in the specified directory, extracting text, generating embeddings, and storing the data in MongoDB for use by the chatbot.
-
-```bash
-
-node processPdf.js
-
-```
-
-This additional capability enriches the chatbot's responses with information extracted from a predefined set of documents, making it more useful for answering queries with specific, document-based knowledge.
 
 ## Usage
 
