@@ -1,0 +1,16 @@
+{
+    "mongoDB": {
+        "mongoUri": "mongodb+srv://<username>:<password>@cluster0.example.mongodb.net/",
+        "dbName": "gcp-rag",
+        "collectionName": "rag-data"
+    },
+    "googleCloud": {
+        "apiEndpoint": "us-central1-aiplatform.googleapis.com",
+        "project": "<YOUR PROJECT NAME>",
+        "location": "us-central1",
+        "publisher": "google",
+        "model": "chat-bison@001",
+        "embeddingModel": "textembedding-gecko@001"
+    },
+    "port": 5050
+}
