@@ -11,11 +11,11 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  Chip, // Import the Chip component
+  Chip,
   Switch,
   FormControlLabel,
   Stack,
-  Box, // Import for the toggle switch label
+  Box,
 } from "@mui/material";
 import config from "../config";
 
@@ -35,58 +35,65 @@ function App() {
     scrollToBottom();
   }, [messages]); // Triggered every time the messages array changes
 
+  // Scrolls to the bottom of the messages container smoothly.
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Async function to send a message to the server and handle the response.
   const sendMessageToServer = async (userMessage) => {
-    setIsWaitingForResponse(true); // Indicate that we're waiting for a response
+    setIsWaitingForResponse(true); // Indicate waiting for server response.
+
     try {
+      // Send POST request to server with userMessage and RAG status.
       const response = await fetch(
         `http://localhost:${config.backend_port}/chat`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: userMessage, rag: isRAGEnabled }),
         }
       );
 
-      if (!response.ok) {
+      // Check for non-2xx HTTP response.
+      if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
-      const data = await response.json();
-      setIsWaitingForResponse(false); // Response received, no longer waiting
-      return data.message; // Assuming the server responds with { message: '...' }
+      const data = await response.json(); // Parse JSON response.
+      setIsWaitingForResponse(false); // Reset waiting indicator.
+      return data.message; // Return server's message from response.
     } catch (error) {
-      console.error("Error sending message:", error);
-      setIsWaitingForResponse(false); // In case of error, also update the state
+      console.error("Error sending message:", error); // Log error.
+      setIsWaitingForResponse(false); // Reset waiting indicator on error.
     }
   };
 
+  // Async function to handle sending of user messages.
   const handleSend = async () => {
-    if (!input.trim()) return; // Prevent sending empty messages
+    if (!input.trim()) return; // Ignore empty messages.
 
     const userMessage = input;
+    // Update UI to show user's message.
     setMessages((messages) => [
       ...messages,
       { text: userMessage, sender: "user" },
-    ]); // Add user message to UI
-    setInput(""); // Clear input field
+    ]);
+    setInput(""); // Clear the input field.
 
+    // Await response from server after sending user message.
     const botResponse = await sendMessageToServer(userMessage);
     if (botResponse) {
+      // Update UI to show bot's response.
       setMessages((messages) => [
         ...messages,
         { text: botResponse, sender: "bot" },
-      ]); // Add bot response to UI
+      ]);
     }
   };
 
+  // Toggles the RAG feature based on checkbox input.
   const handleRAGToggle = (event) => {
-    setIsRAGEnabled(event.target.checked);
+    setIsRAGEnabled(event.target.checked); // Update RAG enabled state.
   };
 
   return (
@@ -110,7 +117,7 @@ function App() {
                   color="default"
                 />
               }
-              style={{ marginRight: 0 }} // Adjust margin if necessary
+              style={{ marginRight: 0 }}
             />
             <Typography>On</Typography>
           </Stack>

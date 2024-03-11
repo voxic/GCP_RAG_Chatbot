@@ -14,6 +14,42 @@ This project consists of a frontend chat application built using React and Mater
 
 !["Overview"](overview.png)
 
+## Environment Setup
+
+- **MongoDB**: Ensure your MongoDB instance is accessible and you have access to the connection string.
+- **Google Cloud AI Platform**: Setup your Google Cloud project.
+- **Frontend**:Make sure to change the parameters in the `frontend/config.js` file to suit your environment.
+- **Backend**:Make sure to change the parameters in the `backend/config.json` file to suit your environment.
+
+### MongoDB
+
+- Deploy a free Atlas Cluster.
+  Refer to:
+  https://www.mongodb.com/docs/atlas/tutorial/deploy-free-tier-cluster/
+
+- Generate the embeddings using the supplied `backend/processPdf.js` script.
+
+- Create a Vector Search Index. Refer to: https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/
+
+Vector Search Index definition
+
+```json
+{
+  "fields": [
+    {
+      "numDimensions": 768,
+      "path": "embedding",
+      "similarity": "euclidean",
+      "type": "vector"
+    }
+  ]
+}
+```
+
+### Google Cloud AI Platform
+
+To setup and enable the required API and services refer to: https://cloud.google.com/vertex-ai/docs/start/cloud-environment
+
 ## Installation
 
 ### Frontend
@@ -63,42 +99,6 @@ node processPdf.js
 
 This additional capability enriches the chatbot's responses with information extracted from a predefined set of documents, making it more useful for answering queries with specific, document-based knowledge.
 
-## Environment Setup
-
-- **MongoDB**: Ensure your MongoDB instance is accessible and you have access to the connection string.
-- **Google Cloud AI Platform**: Setup your Google Cloud project.
-- **Frontend**:Make sure to change the parameters in the `frontend/config.js` file to suit your environment.
-- **Backend**:Make sure to change the parameters in the `backend/config.json` file to suit your environment.
-
-### MongoDB
-
-- Deploy a free Atlas Cluster.
-  Refer to:
-  https://www.mongodb.com/docs/atlas/tutorial/deploy-free-tier-cluster/
-
-- Generate the embeddings using the supplied `backend/processPdf.js` script.
-
-- Create a Vector Search Index. Refer to: https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/
-
-Vector Search Index definition
-
-```json
-{
-  "fields": [
-    {
-      "numDimensions": 768,
-      "path": "embedding",
-      "similarity": "euclidean",
-      "type": "vector"
-    }
-  ]
-}
-```
-
-### Google Cloud AI Platform
-
-To setup and enable the required API and services refer to: https://cloud.google.com/vertex-ai/docs/start/cloud-environment
-
 ## Usage
 
 ### Start the Frontend
@@ -119,7 +119,7 @@ Run the backend server:
 node server.js
 ```
 
-The server will start on the default port 5050, or a port specified by the `PORT` environment variable.
+The server will start on the default port 5050, or a port specified by the `config.js` file.
 
 ## Contributing
 

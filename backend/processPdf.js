@@ -34,21 +34,31 @@ async function readPDFsAndEmbed(directoryPath) {
       // Assuming each sentences is separated by ". "
       const sentences = data.text.split(". ");
 
+      // Initialize pageNumber to 1 at the start.
       let pageNumber = 1;
+
+      // Iterate over each sentence in the sentences array.
       for (const sentence of sentences) {
+        // Make an asynchronous POST request to the embedding endpoint with the current sentence.
+        // The sentence is JSON stringified before sending.
         const response = await axios.post(embeddingEndpoint, {
           text: JSON.stringify(sentence),
         });
+
+        // Extract the embeddings from the response data.
         const embedding = response.data.embeddings;
 
+        // Insert a new document into the MongoDB collection with the sentence, its embedding,
+        // the current PDF file name, and the current page number.
         await collection.insertOne({
-          pdfFileName: file,
-          sentence,
-          pageNumber,
-          embedding,
+          pdfFileName: file, // The name of the PDF file being processed.
+          sentence, // The current sentence being processed.
+          pageNumber, // The page number where the sentence was found.
+          embedding, // The embedding of the current sentence.
         });
 
-        // Assuming each page is separated by "\n\n"
+        // Check if the sentence contains the page separator "\n\n".
+        // If so, increment the pageNumber variable to indicate a new page.
         if (/\n\n/.test(sentence)) {
           pageNumber++;
         }

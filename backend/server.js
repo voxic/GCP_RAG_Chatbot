@@ -6,7 +6,7 @@ const { PredictionServiceClient } = aiplatform.v1;
 const { helpers } = aiplatform;
 const config = require("./config.json");
 
-// MongoDB connection string - adjust the URI as needed
+// MongoDB connection string - adjust in the config.json file
 const mongoUri = config.mongoDB.mongoUri;
 const client = new MongoClient(mongoUri);
 const dbName = config.mongoDB.dbName;
@@ -26,18 +26,17 @@ const predictionServiceClient = new PredictionServiceClient(clientOptions);
 let history = [];
 let lastRag = false;
 
+// Extracts floating point numbers from a nested JSON structure.
 function extractFloatsFromJson(jsonData) {
-  // Initialize an empty array to hold the floats
-  let floats = [];
+  let floats = []; // Store extracted floats.
 
-  // Iterate through the jsonData array
+  // Loop through jsonData to reach deeply nested `values`.
   jsonData.forEach((item) => {
-    // Navigate through the nested properties to reach the `values` array
     const values =
       item.structValue.fields.embeddings.structValue.fields.values.listValue
         .values;
 
-    // Extract the numberValue from each item in the `values` array and push it to the floats array
+    // Extract and add `numberValue` to floats if present.
     values.forEach((valueItem) => {
       if (valueItem.kind === "numberValue") {
         floats.push(valueItem.numberValue);
@@ -45,39 +44,41 @@ function extractFloatsFromJson(jsonData) {
     });
   });
 
-  // Return the array of floats
-  return floats;
+  return floats; // Return collected floats.
 }
 
+// Asynchronously fetches embeddings for given text using a Google Cloud model.
 async function getEmbeddings(text) {
-  const embeddingModel = googleCloud.embeddingModel;
-  // Configure the parent resource
+  const embeddingModel = googleCloud.embeddingModel; // Model identifier.
+  // Construct the API endpoint with project and location details.
   const endpoint = `projects/${project}/locations/${location}/publishers/${publisher}/models/${embeddingModel}`;
 
-  const instance = {
-    content: text,
-  };
-  const instanceValue = helpers.toValue(instance);
-  const instances = [instanceValue];
+  // Prepare the input instance with the text content.
+  const instance = { content: text };
+  const instanceValue = helpers.toValue(instance); // Convert to expected format.
+  const instances = [instanceValue]; // Wrap in an array for the API request.
 
+  // Set prediction parameters.
   const parameter = {
-    temperature: 0,
-    maxOutputTokens: 256,
-    topP: 0,
-    topK: 1,
+    temperature: 0, // Controls randomness.
+    maxOutputTokens: 256, // Maximum length of the generated text.
+    topP: 0, // Nucleus sampling: selects the smallest set of tokens cumulatively.
+    topK: 1, // Top-k sampling: selects the top k probabilities.
   };
-  const parameters = helpers.toValue(parameter);
+  const parameters = helpers.toValue(parameter); // Convert to expected format.
 
+  // Construct the request object.
   const request = {
     endpoint,
     instances,
     parameters,
   };
 
-  // Predict request
+  // Perform the predict request to the API.
   const [response] = await predictionServiceClient.predict(request);
-  const predictions = response.predictions;
+  const predictions = response.predictions; // Extract predictions.
 
+  // Extract and return floats from the predictions JSON.
   return extractFloatsFromJson(predictions);
 }
 
@@ -105,17 +106,19 @@ app.post("/embedding", async (req, res) => {
   }
 });
 
+// Endpoint for handling chat messages, dynamically responding based on RAG status.
 app.post("/chat", async (req, res) => {
-  const userMessage = req.body.message;
-  const rag = req.body.rag;
-  console.log(rag);
-  let prompt;
+  const userMessage = req.body.message; // Extract user message from request body.
+  const rag = req.body.rag; // Extract RAG status.
+  let prompt; // Initialize prompt variable for later use.
 
+  // Reset history if RAG status has changed since last message.
   if (lastRag !== rag) {
     history = [];
     lastRag = rag;
   }
 
+  // Add user's message to history.
   history.push({
     author: "user",
     content: userMessage,
@@ -123,8 +126,10 @@ app.post("/chat", async (req, res) => {
 
   try {
     if (rag) {
+      // RAG enabled: Use embeddings to find relevant responses.
       const embeddings = await getEmbeddings(userMessage);
 
+      // Define MongoDB db and collection and set up aggregation pipeline for vector search.
       const db = client.db(dbName);
       const collection = db.collection(collectionName);
 
@@ -144,9 +149,10 @@ app.post("/chat", async (req, res) => {
         .toArray();
       console.log(aggregationResponse);
 
+      // Check if aggregation returned results and prepare prompt accordingly.
       if (aggregationResponse.length > 0) {
         const { pdfFileName, sentence, pageNumber } = aggregationResponse[0];
-        mongoContext = `Answer the user based on the Relevant context, always tell the user the pdf file and the page number as par of your answer: "${sentence}" from ${pdfFileName}, page ${pageNumber}.`;
+        mongoContext = `Answer the user based on the Relevant context, always tell the user the name of the pdf file and the page number as part of your answer: "${sentence}" from ${pdfFileName}, page ${pageNumber}.`;
 
         prompt = {
           context: mongoContext,
@@ -156,10 +162,12 @@ app.post("/chat", async (req, res) => {
           messages: history,
         };
       } else {
+        // Handle case where no aggregation results are found.
         console.error("Error processing chat message:", error);
         res.status(500).json({ message: "Error processing your message" });
       }
     } else {
+      // RAG disabled: Prepare a general-purpose prompt.
       prompt = {
         context: `You are a helpful chatbot, you are not allowed to lie or make stuff up. RAG is off. 
         If you can't find the information the user is looking for say "I don't know" `,
@@ -169,7 +177,8 @@ app.post("/chat", async (req, res) => {
         messages: history,
       };
     }
-    console.log(prompt);
+
+    // Set up and make prediction request.
     const instanceValue = helpers.toValue(prompt);
     const instances = [instanceValue];
 
@@ -190,7 +199,7 @@ app.post("/chat", async (req, res) => {
     const [response] = await predictionServiceClient.predict(request);
     const predictions = response.predictions;
 
-    // Extracting just the text response from the AI model
+    // Extract and send bot's text response.
     const botResponseObj = predictions[0];
     const botTextResponse =
       botResponseObj.structValue.fields.candidates.listValue.values[0]
