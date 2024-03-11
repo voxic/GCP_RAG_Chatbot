@@ -14,6 +14,8 @@ This project consists of a frontend chat application built using React and Mater
 
 !["Overview"](overview.png)
 
+### Refer to Step by Step guide for details in deploying: ["StepByStep"](STEPBYSTEP.md)
+
 ## Environment Setup
 
 - **MongoDB**: Ensure your MongoDB instance is accessible and you have access to the connection string.
