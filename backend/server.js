@@ -13,13 +13,13 @@ const dbName = config.mongoDB.dbName;
 const collectionName = config.mongoDB.collectionName;
 
 const clientOptions = {
-  apiEndpoint: googleCloud.apiEndpoint,
+  apiEndpoint: config.googleCloud.apiEndpoint,
 };
 
-const project = googleCloud.project;
-const location = googleCloud.location;
-const publisher = googleCloud.publisher;
-const model = googleCloud.model;
+const project = config.googleCloud.project;
+const location = config.googleCloud.location;
+const publisher = config.googleCloud.publisher;
+const model = config.googleCloud.model;
 
 const predictionServiceClient = new PredictionServiceClient(clientOptions);
 
@@ -49,7 +49,7 @@ function extractFloatsFromJson(jsonData) {
 
 // Asynchronously fetches embeddings for given text using a Google Cloud model.
 async function getEmbeddings(text) {
-  const embeddingModel = googleCloud.embeddingModel; // Model identifier.
+  const embeddingModel = config.googleCloud.embeddingModel; // Model identifier.
   // Construct the API endpoint with project and location details.
   const endpoint = `projects/${project}/locations/${location}/publishers/${publisher}/models/${embeddingModel}`;
 
