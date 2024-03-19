@@ -19,8 +19,6 @@ import {
 } from "@mui/material";
 import config from "../config";
 
-import "./App.css";
-
 function App() {
   const [messages, setMessages] = useState([
     { text: "Welcome, how can I help?", sender: "Bot" },
