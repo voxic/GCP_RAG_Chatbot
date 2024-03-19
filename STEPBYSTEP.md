@@ -69,6 +69,8 @@ Refer to: https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/
 
 The vector search index should be named: `vector_index`.
 
+> Make sure you create the index on the _database_ and _collection_ you stored the embeddings in.
+
 Vector Search Index definition:
 
 ```json
