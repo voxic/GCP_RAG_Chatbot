@@ -27,6 +27,10 @@ https://www.mongodb.com/docs/atlas/tutorial/deploy-free-tier-cluster/
 
 Refer to: https://cloud.google.com/vertex-ai/docs/start/cloud-environment
 
+> Note before starting the backend,  
+> Login in the terminal using the gcloud CLI using:  
+> `gcloud auth application-default login`
+
 ## 3. Start the `Backend`
 
 Open a terminal.  
