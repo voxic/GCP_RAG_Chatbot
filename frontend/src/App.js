@@ -17,7 +17,7 @@ import {
   Stack,
   Box,
 } from "@mui/material";
-import config from "../config";
+import config from "./config";
 
 function App() {
   const [messages, setMessages] = useState([
