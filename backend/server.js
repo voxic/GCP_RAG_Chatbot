@@ -163,8 +163,8 @@ app.post("/chat", async (req, res) => {
         };
       } else {
         // Handle case where no aggregation results are found.
-        console.error("Error processing chat message:", error);
-        res.status(500).json({ message: "Error processing your message" });
+        console.error("No results from vector search");
+        res.status(500).json({ message: "No results from vector search" });
       }
     } else {
       // RAG disabled: Prepare a general-purpose prompt.
