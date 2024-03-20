@@ -184,7 +184,7 @@ app.post("/chat", async (req, res) => {
 
     const parameters = helpers.toValue({
       temperature: 0.2,
-      maxOutputTokens: 300,
+      maxOutputTokens: 450,
       topP: 0.95,
       topK: 40,
     });
